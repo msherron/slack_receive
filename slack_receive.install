@@ -1,0 +1,15 @@
+<?php
+
+/*
+ * Implements hook_install().
+ */
+function slack_receive_install() {
+
+}
+
+/*
+ * Implements hook_uninstall().
+ */
+function slack_receive_uninstall() {
+  variable_del('slack_receive_token');
+}

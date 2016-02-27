@@ -1,0 +1,54 @@
+<?php
+
+/**
+ * @file
+ * Slack Receive module.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function slack_receive_menu() {
+  $items = array();
+
+  $items['admin/config/services/slack_recieve'] = array(
+    'title' => 'Slack Receive',
+    'description' => 'Adjust Slack Receive settings.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('slack_receive_configure_form'),
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'includes/pages/slack_receive.admin.inc',
+  );
+
+  $items['slack_receive'] = array(
+    'page callback' => 'slack_receive',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
+ * Authentication and JSON output wrapper for receiving
+ * requests from Slack teams (via the Outgoing Webhook
+ * Integration, see: https://api.slack.com/outgoing-webhooks ).
+ */
+function slack_receive() {
+
+  $data = $_POST;
+
+  // Check for a valid token before doing anything else.
+  $token = variable_get('slack_receive_token','');
+  if ($data['token'] !== $token) {
+    $data = array('ERROR' => 'Invalid or missing token');
+  }
+  else {
+    // Create custom hook so authenticated requests can
+    // perform Drupal tasks.
+    $data = module_invoke_all('slack_receive_api', $data);
+  }
+
+  drupal_json_output($data);
+}

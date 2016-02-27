@@ -1,0 +1,87 @@
+<?php
+
+/**
+ * @file
+ * Slack Receive Example module.
+ */
+
+/**
+ * Implements hook_slack_receive_api().
+ */
+function slack_receive_example_slack_receive_api($data) {
+
+  // Note that slack unhelpfully names the initiating messages'
+  // text string as 'text' and expects a response named 'text'
+  // to print in the team chat.
+  $args = explode(' ', $data['text']);
+
+  switch ($args[1]) {
+
+    // Just like drush pm-list.
+    case 'pm-list':
+      $data = slack_receive_example_get_pm_list($data, $args);
+      break;
+
+    // Cache clear.
+    case 'cache-clear':
+      $data = slack_receive_example_clear_cache($data, $args);
+      break;
+
+    default:
+      $data['text'] = 'Sorry, command not found.';
+  }
+
+  return $data;
+}
+
+/**
+ * Fetches contrib module status information.
+ *
+ * @param $data
+ * @return $data
+ *
+ */
+function slack_receive_example_get_pm_list($data, $args) {
+
+  // Note the use of escapeshellcmd() and escapeshellarg() to avoid
+  // unwanted execution of shell commands from user input.
+  $cmd = escapeshellcmd('drush pm-list');
+  $cmd .= $args[2] ? ' | grep ' . escapeshellarg($args[2]) : '';
+  exec($cmd, $results);
+
+  // Slack Outgoing Webhooks integration requires
+  // the 'text' response to be a single string.
+  $response = '';
+  foreach ($results as $result) {
+    $response .= $result . "\n";
+  }
+
+  $data['text'] = $response;
+
+  return $data;
+}
+
+/**
+ * Clears drupal cache.
+ * @param $data, $args
+ * @return @data
+ */
+function slack_receive_example_clear_cache($data, $args) {
+
+  $cmd = escapeshellcmd('drush cache-clear');
+  $cmd .= $args[2] ? ' ' . escapeshellarg($args[2]) : ' all';
+  $data['cmd'] = $cmd;
+  exec($cmd, $response, $status);
+
+  // For some reason, drush cache-clear response text isn't returned
+  // from exec(), but a status code is - 0 for success 1 for non-success.
+  if ($status) {
+    $data['text'] = "'$args[2]' is not a valid cache type.";
+  }
+  else {
+    $cache_name = $args[2] ? $args[2] : 'all';
+    $data['text'] = "'$cache_name' cache was cleared.";
+  }
+
+  return $data;
+}
