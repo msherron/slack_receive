@@ -37,9 +37,8 @@ function slack_receive_example_slack_receive_api($data) {
 /**
  * Fetches contrib module status information.
  *
- * @param $data
+ * @param $data, $args
  * @return $data
- *
  */
 function slack_receive_example_get_pm_list($data, $args) {
 
@@ -62,7 +61,8 @@ function slack_receive_example_get_pm_list($data, $args) {
 }
 
 /**
- * Clears drupal cache.
+ * Clears drupal cache
+ *
  * @param $data, $args
  * @return @data
  */
