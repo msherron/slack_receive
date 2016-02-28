@@ -1,13 +1,11 @@
 <?php
 
-/*
- * Implements hook_install().
+/**
+ * @file
+ * Slack Receive module.
  */
-function slack_receive_install() {
 
-}
-
-/*
+/**
  * Implements hook_uninstall().
  */
 function slack_receive_uninstall() {

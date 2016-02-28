@@ -37,8 +37,13 @@ function slack_receive_example_slack_receive_api($data) {
 /**
  * Fetches contrib module status information.
  *
- * @param $data, $args
+ * @param $data
+ *   The POST data from Slack. 
+ * @param $args
+ *   An array of the parsed command sent from Slack.
+ * 
  * @return $data
+ *   Slack Response.
  */
 function slack_receive_example_get_pm_list($data, $args) {
 
@@ -62,9 +67,13 @@ function slack_receive_example_get_pm_list($data, $args) {
 
 /**
  * Clears drupal cache
- *
- * @param $data, $args
- * @return @data
+ * @param $data
+ *   The POST data from Slack. 
+ * @param $args
+ *   An array of the parsed command sent from Slack.
+ * 
+ * @return $data
+ *   Slack Response.
  */
 function slack_receive_example_clear_cache($data, $args) {
 

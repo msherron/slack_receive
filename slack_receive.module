@@ -31,16 +31,16 @@ function slack_receive_menu() {
 }
 
 /**
- * Authentication and JSON output wrapper for receiving
- * requests from Slack teams (via the Outgoing Webhook
- * Integration, see: https://api.slack.com/outgoing-webhooks ).
+ * Authentication and JSON output wrapper for receiving commands from Slack.
+ * 
+ * See: https://api.slack.com/outgoing-webhooks.
  */
 function slack_receive() {
 
   $data = $_POST;
 
   // Check for a valid token before doing anything else.
-  $token = variable_get('slack_receive_token','');
+  $token = variable_get('slack_receive_token', '');
   if ($data['token'] !== $token) {
     $data = array('ERROR' => 'Invalid or missing token');
   }
