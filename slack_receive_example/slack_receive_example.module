@@ -72,7 +72,7 @@ function slack_receive_example_get_pm_list($data, $args) {
  *   The POST data from Slack.
  * @param array $args
  *   An array of the parsed command sent from Slack.
- * 
+ *
  * @return array
  *   Slack Response.
  */
