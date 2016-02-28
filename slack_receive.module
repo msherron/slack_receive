@@ -32,7 +32,7 @@ function slack_receive_menu() {
 
 /**
  * Authentication and JSON output wrapper for receiving commands from Slack.
- * 
+ *
  * See: https://api.slack.com/outgoing-webhooks.
  */
 function slack_receive() {
