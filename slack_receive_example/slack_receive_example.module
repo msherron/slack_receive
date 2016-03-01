@@ -10,7 +10,7 @@
  */
 function slack_receive_example_slack_receive_api(array $data) {
 
-  // Note that slack unhelpfully names the initiating messages'
+  // Note that Slack unhelpfully names the initiating messages'
   // text string as 'text' and expects a response named 'text'
   // to print in the team chat.
   $args = explode(' ', $data['text']);
@@ -84,7 +84,7 @@ function slack_receive_example_clear_cache(array $data, array $args) {
   exec($cmd, $response, $status);
 
   // For some reason, drush cache-clear response text isn't returned
-  // from exec(), but a status code is - 0 for success 1 for non-success.
+  // from exec(), but an exit status code is - 0 for success 1 for non-success.
   if ($status) {
     $data['text'] = "'$args[2]' " . t('is not a valid cache type.');
   }

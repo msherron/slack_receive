@@ -57,9 +57,14 @@ function slack_receive() {
 
   $data = $_POST;
 
+  // Force JSON headers, in the off chance that a callback
+  // tries to do something funky and dies, we don't want Drupal
+  // to try and bootstrap a default error page.
+  drupal_add_http_header('Content-Type', 'application/json');
+
   // Check for a valid token.
   $token = variable_get('slack_receive_token', '');
-  if ($data['token'] !== $token) {
+  if (empty($data['token']) || $data['token'] !== $token) {
     $data = array('ERROR' => 'Invalid or missing token');
   }
   else {
@@ -68,5 +73,5 @@ function slack_receive() {
     $data = module_invoke_all('slack_receive_api', $data);
   }
 
-  drupal_json_output($data);
+  echo drupal_json_encode($data);
 }
