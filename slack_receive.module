@@ -32,6 +32,22 @@ function slack_receive_menu() {
 }
 
 /**
+ * Implements hook_help().
+ */
+function slack_receive_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#slack_receive':
+      $webhook_link = l(t("Outgoing Webhooks"),
+        'https://api.slack.com/outgoing-webhooks');
+      return '<p>' . t("Be sure to see the modules' README. Also, please save
+        your Outgoing Webhook API token in the admin form below. This token
+        authenticates requests from Slack to Drupal. Your teams' token should
+        be accessible here: ") . $webhook_link . '</p>';
+
+  }
+}
+
+/**
  * Hook definition and JSON output wrapper for receiving commands from Slack.
  *
  * See: https://api.slack.com/outgoing-webhooks.

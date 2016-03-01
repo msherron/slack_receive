@@ -8,7 +8,7 @@
 /**
  * Implements hook_slack_receive_api().
  */
-function slack_receive_example_slack_receive_api($data) {
+function slack_receive_example_slack_receive_api(array $data) {
 
   // Note that slack unhelpfully names the initiating messages'
   // text string as 'text' and expects a response named 'text'
@@ -45,7 +45,7 @@ function slack_receive_example_slack_receive_api($data) {
  * @return array
  *   Slack Response.
  */
-function slack_receive_example_get_pm_list($data, $args) {
+function slack_receive_example_get_pm_list(array $data, array $args) {
 
   // Note the use of escapeshellcmd() and escapeshellarg() to avoid
   // unwanted execution of shell commands from user input.
@@ -76,7 +76,7 @@ function slack_receive_example_get_pm_list($data, $args) {
  * @return array
  *   Slack Response.
  */
-function slack_receive_example_clear_cache($data, $args) {
+function slack_receive_example_clear_cache(array $data, array $args) {
 
   $cmd = escapeshellcmd('drush cache-clear');
   $cmd .= $args[2] ? ' ' . escapeshellarg($args[2]) : ' all';

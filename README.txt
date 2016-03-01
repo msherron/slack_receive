@@ -1,14 +1,20 @@
 -- SUMMARY --
 
-* This module allows Slack teams to send commands to Drupal via an Outgoing
-Webhooks integration. It POSTs to a menu callback that this module enables at
-/slack_recieve. If the post contains the correct Slack Token, Slack Receive 
-will then execute any functions that are implemented via 
-hook_slack_receive_api.
+* This module allows Drupal to receive and execute commands sent from Slack via
+their Outgoing Webhooks integration. Developers can use this module as a 
+launching point for things like executing Drush commands and printing the 
+output into a Slack channel, or for creating their own Drupal-powered 
+SlackBots.
 
-* Note: this module is a an API module and does not do anything on its' own. 
-Please enable the included slack_receive_example module to see working 
-examples of functionality that is possible via Slack Receive.
+* Slack will send POST data to a menu callback in Drupal which this module 
+enables at /slack_receive. If the post contains the correct Slack Token, Slack
+Receive will then execute any functions that are implemented via 
+hook_slack_receive_api. Developers should take a few minutes and become 
+familiar with the Slack API docs here: https://api.slack.com/outgoing-webhooks
+
+* Note: this module is a an API module and doesn't do anything on its own.
+Please enable the included slack_receive_example module to see working examples
+of functionality that are possible via Slack Receive.
 
 -- REQUIREMENTS --
 
