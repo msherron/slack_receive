@@ -18,7 +18,8 @@ function slack_receive_menu() {
     'page arguments' => array('slack_receive_configure_form'),
     'access arguments' => array('administer site configuration'),
     'type' => MENU_NORMAL_ITEM,
-    'file' => 'includes/pages/slack_receive.admin.inc',
+    'path' => drupal_get_path('module', 'slack_receive') . '/includes/pages',
+    'file' => 'slack_receive.admin.inc',
   );
 
   $items['slack_receive'] = array(

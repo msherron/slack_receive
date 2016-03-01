@@ -28,7 +28,7 @@ function slack_receive_example_slack_receive_api(array $data) {
       break;
 
     default:
-      $data['text'] = 'Sorry, command not found.';
+      $data['text'] = t('Sorry, command not found.');
   }
 
   return $data;
@@ -86,11 +86,11 @@ function slack_receive_example_clear_cache(array $data, array $args) {
   // For some reason, drush cache-clear response text isn't returned
   // from exec(), but a status code is - 0 for success 1 for non-success.
   if ($status) {
-    $data['text'] = "'$args[2]' is not a valid cache type.";
+    $data['text'] = "'$args[2]' " . t('is not a valid cache type.');
   }
   else {
     $cache_name = $args[2] ? $args[2] : 'all';
-    $data['text'] = "'$cache_name' cache was cleared.";
+    $data['text'] = "'$cache_name' " . t('cache was cleared.');
   }
 
   return $data;
