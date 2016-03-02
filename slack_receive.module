@@ -24,6 +24,7 @@ function slack_receive_menu() {
 
   $items['slack_receive'] = array(
     'page callback' => 'slack_receive',
+    'delivery callback' => 'slack_receive_deliver',
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
@@ -49,6 +50,27 @@ function slack_receive_help($path, $arg) {
 }
 
 /**
+ * JSON delivery callback method.
+ *
+ * Ensures responses always have correct headers set and Drupal doesn't
+ * try to bootstrap an HTML error page.
+ */
+function slack_receive_deliver($page_callback_result) {
+
+  switch ($page_callback_result) {
+    case MENU_SITE_OFFLINE:
+      $response = t("Site is offline.");
+      break;
+
+    default:
+      $response = $page_callback_result;
+  }
+
+  drupal_json_output($response);
+  drupal_exit();
+}
+
+/**
  * Hook definition and JSON output wrapper for receiving commands from Slack.
  *
  * See: https://api.slack.com/outgoing-webhooks.
@@ -56,11 +78,6 @@ function slack_receive_help($path, $arg) {
 function slack_receive() {
 
   $data = $_POST;
-
-  // Force JSON headers, in the off chance that a callback
-  // tries to do something funky and dies, we don't want Drupal
-  // to try and bootstrap a default error page.
-  drupal_add_http_header('Content-Type', 'application/json');
 
   // Check for a valid token.
   $token = variable_get('slack_receive_token', '');
@@ -73,5 +90,5 @@ function slack_receive() {
     $data = module_invoke_all('slack_receive_api', $data);
   }
 
-  echo drupal_json_encode($data);
+  return $data;
 }
