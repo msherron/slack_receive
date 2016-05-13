@@ -3,4 +3,4 @@ description = Allows Drupal to execute commands from Slack teams and send a resp
 core = 7.x
 dependencies[] = slack
 
-configure = admin/config/services/slack_recieve
+configure = admin/config/services/slack_receive

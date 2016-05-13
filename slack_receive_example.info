@@ -1,0 +1,5 @@
+name = Slack Receive Example
+description = Example Use of Slack Receive API.
+core = 7.x
+dependencies[] = slack
+dependencies[] = slack_receive
