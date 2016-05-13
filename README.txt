@@ -16,6 +16,12 @@ familiar with the Slack API docs here: https://api.slack.com/outgoing-webhooks
 Please enable the included slack_receive_example module to see working examples
 of functionality that are possible via Slack Receive.
 
+* Debugging Note: Slack outgoing webhooks will only print a server response on
+200 HTTP success status response. If the site is in maintenance mode or the API
+key is incorrect, slack receive will respond with appropriate HTTP statuses, but
+you will only be able to see them by using some kind of debugging tool, such as
+Postman: https://www.getpostman.com/
+
 -- REQUIREMENTS --
 
 * This module assumes that you currently have admin access to a Slack team. 

@@ -28,7 +28,7 @@ function slack_receive_example_slack_receive_api(array $data) {
       break;
 
     default:
-      $data['text'] = t('Sorry, command not found.');
+      $data['text'] = t('Sorry, that command was not found.');
   }
 
   return $data;

@@ -11,15 +11,14 @@
 function slack_receive_menu() {
   $items = array();
 
-  $items['admin/config/services/slack_recieve'] = array(
+  $items['admin/config/services/slack_receive'] = array(
     'title' => 'Slack Receive',
     'description' => 'Adjust Slack Receive settings.',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('slack_receive_configure_form'),
     'access arguments' => array('administer site configuration'),
     'type' => MENU_NORMAL_ITEM,
-    'path' => drupal_get_path('module', 'slack_receive') . '/includes/pages',
-    'file' => 'slack_receive.admin.inc',
+    'file' => 'includes/pages/slack_receive.admin.inc',
   );
 
   $items['slack_receive'] = array(
@@ -50,39 +49,18 @@ function slack_receive_help($path, $arg) {
 }
 
 /**
- * JSON delivery callback method.
- *
- * Ensures responses always have correct headers set and Drupal doesn't
- * try to bootstrap an HTML error page.
- */
-function slack_receive_deliver($page_callback_result) {
-
-  switch ($page_callback_result) {
-    case MENU_SITE_OFFLINE:
-      $response = t("Site is offline.");
-      break;
-
-    default:
-      $response = $page_callback_result;
-  }
-
-  drupal_json_output($response);
-  drupal_exit();
-}
-
-/**
  * Hook definition and JSON output wrapper for receiving commands from Slack.
  *
  * See: https://api.slack.com/outgoing-webhooks.
  */
 function slack_receive() {
 
-  $data = $_POST;
+  $data = &$_POST;
 
   // Check for a valid token.
   $token = variable_get('slack_receive_token', '');
   if (empty($data['token']) || $data['token'] !== $token) {
-    $data = array('ERROR' => 'Invalid or missing token');
+    return MENU_ACCESS_DENIED;
   }
   else {
     // Create custom hook so authenticated requests can
@@ -91,4 +69,42 @@ function slack_receive() {
   }
 
   return $data;
+}
+
+/**
+ * JSON delivery callback method.
+ *
+ * Ensures responses always have correct headers set and Drupal doesn't
+ * try to bootstrap an HTML error page.
+ *
+ * NOTE: Any non-200 statuses will not return a response inside Slack.
+ */
+function slack_receive_deliver($page_callback_result) {
+
+  // If no result, return an error response.
+  if (empty($page_callback_result)) {
+    $response['text'] = t("Sorry, that command was not found.");
+  }
+  else {
+
+    // NOTE: Anything other than a 200 status code won't receive
+    // a text response in your Slack channel. See README for details.
+    switch ($page_callback_result) {
+      case MENU_SITE_OFFLINE:
+        drupal_add_http_header('Status', '503 Service unavailable');
+        $response['text'] = t("Site is offline.");
+        break;
+
+      case MENU_ACCESS_DENIED:
+        drupal_add_http_header('Status', '403 Forbidden');
+        $response['text'] = t("Sorry, invalid API token.");
+        break;
+
+      default:
+        $response = $page_callback_result;
+    }
+  }
+
+  drupal_json_output($response);
+  drupal_exit();
 }
