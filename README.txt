@@ -33,8 +33,9 @@ information.
 
 -- CONFIGURATION --
 
-* The slack admin form for storing your Slack API Token will be available 
+* The slack admin form for storing your Slack API Token will be available
 here: /admin/config/services/slack_receive.
+
 
 -- CUSTOMIZATION --
 

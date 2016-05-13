@@ -97,7 +97,8 @@ function slack_receive_deliver($page_callback_result) {
     }
   }
 
-  drupal_json_output($response);
+  // Slack expects an array string with the 'text' key.
+  $json['text'] = $response;
+  drupal_json_output($json);
   drupal_exit();
 }
-
