@@ -64,7 +64,8 @@ function slack_receive() {
   else {
     // Create custom hook so authenticated requests can
     // perform Drupal tasks.
-    $data = module_invoke_all('slack_receive_api', $data);
+    $response = module_invoke_all('slack_receive_api', $data);
+    $data['text'] = array_shift($response);
   }
 
   return $data;
@@ -81,7 +82,7 @@ function slack_receive() {
 function slack_receive_deliver($page_callback_result) {
 
   // If no result, return an error response.
-  if (empty($page_callback_result)) {
+  if (empty($page_callback_result['text'])) {
     $response['text'] = t("Sorry, that command was not found.");
   }
   else {

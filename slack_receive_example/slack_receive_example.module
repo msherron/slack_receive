@@ -19,19 +19,16 @@ function slack_receive_example_slack_receive_api(array $data) {
 
     // Just like drush pm-list.
     case 'pm-list':
-      $data = slack_receive_example_get_pm_list($data, $args);
+      $response = slack_receive_example_get_pm_list($data, $args);
       break;
 
     // Cache clear.
     case 'cache-clear':
-      $data = slack_receive_example_clear_cache($data, $args);
+      $response = slack_receive_example_clear_cache($data, $args);
       break;
-
-    default:
-      $data['text'] = t('Sorry, that command was not found.');
   }
 
-  return $data;
+  return $response;
 }
 
 /**
@@ -42,7 +39,7 @@ function slack_receive_example_slack_receive_api(array $data) {
  * @param array $args
  *   An array of the parsed command sent from Slack.
  *
- * @return array
+ * @return string
  *   Slack Response.
  */
 function slack_receive_example_get_pm_list(array $data, array $args) {
@@ -60,9 +57,12 @@ function slack_receive_example_get_pm_list(array $data, array $args) {
     $response .= $result . "\n";
   }
 
-  $data['text'] = $response;
+  // If Grep is empty, search string does not match any installed modules.
+  if (empty($response)) {
+    return t('No modules found.');
+  }
 
-  return $data;
+  return $response;
 }
 
 /**
@@ -73,7 +73,7 @@ function slack_receive_example_get_pm_list(array $data, array $args) {
  * @param array $args
  *   An array of the parsed command sent from Slack.
  *
- * @return array
+ * @return string
  *   Slack Response.
  */
 function slack_receive_example_clear_cache(array $data, array $args) {
@@ -81,17 +81,17 @@ function slack_receive_example_clear_cache(array $data, array $args) {
   $cmd = escapeshellcmd('drush cache-clear');
   $cmd .= $args[2] ? ' ' . escapeshellarg($args[2]) : ' all';
   $data['cmd'] = $cmd;
-  exec($cmd, $response, $status);
+  exec($cmd, $output, $status);
 
   // For some reason, drush cache-clear response text isn't returned
   // from exec(), but an exit status code is - 0 for success 1 for non-success.
   if ($status) {
-    $data['text'] = "'$args[2]' " . t('is not a valid cache type.');
+    $response = "'$args[2]' " . t('is not a valid cache type.');
   }
   else {
     $cache_name = $args[2] ? $args[2] : 'all';
-    $data['text'] = "'$cache_name' " . t('cache was cleared.');
+    $response = "'$cache_name' " . t('cache was cleared.');
   }
 
-  return $data;
+  return $response;
 }
