@@ -44,25 +44,30 @@ function slack_receive_help($path, $arg) {
         your Outgoing Webhook API token in the admin form below. This token
         authenticates requests from Slack to Drupal. Your teams' token should
         be accessible here: ") . $webhook_link . '</p>';
-
   }
 }
 
 /**
- * Access callback for Slack Receive.
+ * Hook definition and JSON output wrapper for receiving commands from Slack.
+ *
+ * See: https://api.slack.com/outgoing-webhooks.
  */
 function slack_receive() {
 
+  $data = &$_POST;
+
   // Check for a valid token.
   $token = variable_get('slack_receive_token', '');
-  if (empty($_POST['token']) || $_POST['token'] !== $token) {
+  if (empty($data['token']) || $data['token'] !== $token) {
     return MENU_ACCESS_DENIED;
   }
   else {
     // Create custom hook so authenticated requests can
     // perform Drupal tasks.
-    return module_invoke_all('slack_receive_api', $_POST['text']);
+    $data = module_invoke_all('slack_receive_api', $data);
   }
+
+  return $data;
 }
 
 /**
@@ -70,26 +75,28 @@ function slack_receive() {
  *
  * Ensures responses always have correct headers set and Drupal doesn't
  * try to bootstrap an HTML error page.
+ *
+ * NOTE: Any non-200 statuses will not return a response inside Slack.
  */
 function slack_receive_deliver($page_callback_result) {
 
-  // If no result, set a 404 and return the response.
+  // If no result, return an error response.
   if (empty($page_callback_result)) {
-    drupal_add_http_header('Status', '404 Page not found');
-    $response = t("Sorry, no Slack Recieve callbacks found.");
+    $response['text'] = t("Sorry, that command was not found.");
   }
   else {
 
+    // NOTE: Anything other than a 200 status code won't receive
+    // a text response in your Slack channel. See README for details.
     switch ($page_callback_result) {
-
       case MENU_SITE_OFFLINE:
         drupal_add_http_header('Status', '503 Service unavailable');
-        $response = t("Site is offline.");
+        $response['text'] = t("Site is offline.");
         break;
 
       case MENU_ACCESS_DENIED:
         drupal_add_http_header('Status', '403 Forbidden');
-        $response = t("Sorry, invalid API token.");
+        $response['text'] = t("Sorry, invalid API token.");
         break;
 
       default:
@@ -97,8 +104,6 @@ function slack_receive_deliver($page_callback_result) {
     }
   }
 
-  // Slack expects an array string with the 'text' key.
-  $json['text'] = $response;
-  drupal_json_output($json);
+  drupal_json_output($response);
   drupal_exit();
 }

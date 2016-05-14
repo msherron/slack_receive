@@ -8,24 +8,30 @@
 /**
  * Implements hook_slack_receive_api().
  */
-function slack_receive_example_slack_receive_api($data) {
+function slack_receive_example_slack_receive_api(array $data) {
 
-  $args = explode(' ', $data);
+  // Note that Slack unhelpfully names the initiating messages'
+  // text string as 'text' and expects a response named 'text'
+  // to print in the team chat.
+  $args = explode(' ', $data['text']);
 
   switch ($args[1]) {
 
     // Just like drush pm-list.
     case 'pm-list':
-      $response = slack_receive_example_get_pm_list($args);
+      $data = slack_receive_example_get_pm_list($data, $args);
       break;
 
     // Cache clear.
     case 'cache-clear':
-      $response = slack_receive_example_clear_cache($args);
+      $data = slack_receive_example_clear_cache($data, $args);
       break;
+
+    default:
+      $data['text'] = t('Sorry, that command was not found.');
   }
 
-  return $response;
+  return $data;
 }
 
 /**
@@ -39,7 +45,7 @@ function slack_receive_example_slack_receive_api($data) {
  * @return array
  *   Slack Response.
  */
-function slack_receive_example_get_pm_list(array $args) {
+function slack_receive_example_get_pm_list(array $data, array $args) {
 
   // Note the use of escapeshellcmd() and escapeshellarg() to avoid
   // unwanted execution of shell commands from user input.
@@ -49,38 +55,43 @@ function slack_receive_example_get_pm_list(array $args) {
 
   // Slack Outgoing Webhooks integration requires
   // the 'text' response to be a single string.
-  $list_string = '';
+  $response = '';
   foreach ($results as $result) {
-    $list_string .= $result . "\n";
+    $response .= $result . "\n";
   }
 
-  return $list_string;
+  $data['text'] = $response;
+
+  return $data;
 }
 
 /**
  * Clears drupal cache.
  *
+ * @param array $data
+ *   The POST data from Slack.
  * @param array $args
  *   An array of the parsed command sent from Slack.
  *
  * @return array
  *   Slack Response.
  */
-function slack_receive_example_clear_cache(array $args) {
+function slack_receive_example_clear_cache(array $data, array $args) {
 
   $cmd = escapeshellcmd('drush cache-clear');
   $cmd .= $args[2] ? ' ' . escapeshellarg($args[2]) : ' all';
-  exec($cmd, $output, $status);
+  $data['cmd'] = $cmd;
+  exec($cmd, $response, $status);
 
   // For some reason, drush cache-clear response text isn't returned
   // from exec(), but an exit status code is - 0 for success 1 for non-success.
   if ($status) {
-    $response = "'$args[2]' " . t('is not a valid cache type.');
+    $data['text'] = "'$args[2]' " . t('is not a valid cache type.');
   }
   else {
     $cache_name = $args[2] ? $args[2] : 'all';
-    $response = "'$cache_name' " . t('cache was cleared.');
+    $data['text'] = "'$cache_name' " . t('cache was cleared.');
   }
 
-  return $response;
+  return $data;
 }
