@@ -1,6 +1,5 @@
 name = Slack Receive
 description = Allows Drupal to execute commands from Slack teams and send a response.
 core = 7.x
-dependencies[] = slack
 
 configure = admin/config/services/slack_receive

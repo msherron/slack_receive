@@ -5,6 +5,10 @@
  * Slack Receive module.
  */
 
+define('SLACK_RECEIVE_FLOOD_LIMIT', 60);
+define('SLACK_RECEIVE_FLOOD_WINDOW', 60);
+define('SLACK_RECEIVE_FLOOD_DETECTED', -1);
+
 /**
  * Implements hook_menu().
  */
@@ -62,10 +66,18 @@ function slack_receive() {
     return MENU_ACCESS_DENIED;
   }
   else {
-    // Create custom hook so authenticated requests can
-    // perform Drupal tasks.
-    $response = module_invoke_all('slack_receive_api', $data);
-    $data['text'] = array_shift($response);
+    // Flood control.
+    if (!flood_is_allowed('slack_receive_request',
+      SLACK_RECEIVE_FLOOD_LIMIT, SLACK_RECEIVE_FLOOD_WINDOW)) {
+      return SLACK_RECEIVE_FLOOD_DETECTED;
+    }
+    else {
+      // Create custom hook so authenticated requests can
+      // perform Drupal tasks.
+      $response = module_invoke_all('slack_receive_api', $data);
+      $data['text'] = array_shift($response);
+      flood_register_event('slack_receive_request', SLACK_RECEIVE_FLOOD_WINDOW);
+    }
   }
 
   return $data;
@@ -81,8 +93,13 @@ function slack_receive() {
  */
 function slack_receive_deliver($page_callback_result) {
 
+  // If flood detected, set a 403 and exit.
+  if ($page_callback_result == SLACK_RECEIVE_FLOOD_DETECTED) {
+    drupal_add_http_header('Status', '403 Forbidden');
+    $response['text'] = t("Too many requests within tne allotted timeframe. Please wait a while before trying again.");
+  }
   // If no result, return an error response.
-  if (empty($page_callback_result['text'])) {
+  else if (empty($page_callback_result['text'])) {
     $response['text'] = t("Sorry, that command was not found.");
   }
   else {
