@@ -1,0 +1,6 @@
+name: 'Slack Receive Example'
+description: 'Example Use of Slack Receive API.'
+version: '8.x-1.0'
+core: '8.x'
+dependencies:
+ - slack_receive

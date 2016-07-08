@@ -1,0 +1,15 @@
+slack_receive.admin_home:
+  path: '/admin/config/services/slack_receive/config'
+  defaults:
+    _title: 'Slack Receive'
+    _description: 'Adjust Slack Receive Settings'
+    _controller: '\Drupal\slack_receive\Form\SettingsForm'
+  requirements:
+    _permission: 'administer site configuration'
+
+slack_receive.get:
+  path: '/slack_receive'
+  defaults: { _controller: '\Drupal\slack_receive\Controller\SlackReceiveController:get_callback' }
+  methods: [GET]
+  requirements:
+    _access: 'TRUE'
